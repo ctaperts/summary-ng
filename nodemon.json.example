@@ -1,0 +1,6 @@
+{
+  "env": {
+    "MONO_ATLAS_PW": "",
+    "JWT_KEY": ""
+  }
+}
