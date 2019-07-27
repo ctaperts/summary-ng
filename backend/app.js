@@ -34,8 +34,10 @@ app.use((req, res, next) => {
 
 app.use('/api/posts', postsRoutes);
 app.use('/api/user', userRoutes);
-app.use((res) => {
-  res.sendFile(path.join(__dirname, 'angular', 'index.html'));
-});
+
+// for angular node prod setup
+// app.use((res) => {
+//   res.sendFile(path.join(__dirname, 'angular', 'index.html'));
+// });
 
 module.exports = app;

@@ -47,7 +47,7 @@ npm-debug.log
 yarn-error.log
 testem.log
 /typings
-backend/images/*
+backend/uploads/*
 .tern-port
 
 # System Files

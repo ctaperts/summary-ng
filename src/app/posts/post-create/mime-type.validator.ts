@@ -17,13 +17,17 @@ export const mimeType = (control: AbstractControl): Promise<{[key: string]: any}
       }
       switch (header) {
         case "89504e47":
-          isValid = true;
-          break;
         case "ffd8ffe0":
         case "ffd8ffe1":
         case "ffd8ffe2":
         case "ffd8ffe3":
         case "ffd8ffe8":
+          isValid = false;
+          break;
+        case "25504446": // 'application/pdf'
+        case "2A2A2A2020496E7374616C6C6174696F6E205374617274656420": // 'text/plain'
+        case "47": // tsv
+        case "68656c6c": // text
           isValid = true;
           break;
         default:
@@ -33,6 +37,7 @@ export const mimeType = (control: AbstractControl): Promise<{[key: string]: any}
       if (isValid) {
         observer.next(null);
       } else {
+        console.log("Uknown mime signature:", header)
         observer.next({invalidMimeType: true});
       }
       observer.complete();
