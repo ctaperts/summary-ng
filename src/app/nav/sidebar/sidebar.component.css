@@ -1,0 +1,52 @@
+mat-sidenav-container {
+  height: 100%;
+}
+
+mat-sidenav {
+  height: 100%;
+  width: 160px;
+  position: fixed;
+  z-index: 1;
+  top: 0;
+  left: 0;
+  background-color: #EFF7CF;
+  overflow-x: hidden;
+  padding-top: 20px;
+}
+
+.mat-button {
+  color: #420C14;
+}
+
+.content {
+  margin-top: 64px;
+  color: #420C14;
+  text-decoration: none;
+}
+
+.content h1 {
+  text-align: center;
+}
+
+ul {
+  padding-left: 100%;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.side-drawer-container {
+  margin-top: 64px;
+  width: 100%;
+}
+
+a {
+}
+
+li {
+  text-align: center;
+}
+
+.spacer {
+  flex: 1 1 auto;
+}

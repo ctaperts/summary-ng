@@ -4,7 +4,8 @@ import { NgModule } from '@angular/core';
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 
 import { AppComponent } from './app.component';
-import { HeaderComponent } from './header/header.component';
+import { HeaderComponent } from './nav/header/header.component';
+import { SidebarComponent } from './nav/sidebar/sidebar.component';
 import { AppRoutingModule } from './app-routing.module';
 import { AuthInterceptor } from './auth/auth-interceptor';
 import { ErrorInterceptor } from './error-interceptor';
@@ -16,6 +17,7 @@ import { PostModule } from './posts/posts.module'
   declarations: [
     AppComponent,
     HeaderComponent,
+    SidebarComponent,
     ErrorComponent
   ],
   imports: [
