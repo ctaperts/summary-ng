@@ -5,7 +5,7 @@ exports.postCreate = (req, res) => {
   const post = new Post({
     title: req.body.title,
     content: req.body.content,
-    imagePath: url + '/images/' + req.file.filename,
+    docPath: url + '/docs/' + req.file.filename,
     creator: req.userData.userId
   });
   post.save()
@@ -16,7 +16,7 @@ exports.postCreate = (req, res) => {
           ...result,
           id: result._id
           // title: result.title,  // using spread instead
-          // imagePath: result.imagePath
+          // docPath: result.docPath
         }
       });
     })
@@ -29,16 +29,16 @@ exports.postCreate = (req, res) => {
 };
 
 exports.postEdit = (req, res) => {
-  let imagePath = req.body.imagePath;
+  let docPath = req.body.docPath;
   if (req.file) {
     const url = req.protocol + '://' + req.get('host');
-    imagePath = url + '/images/' + req.file.filename;
+    docPath = url + '/docs/' + req.file.filename;
   }
   const post = new Post({
     _id: req.body.id,
     title: req.body.title,
     content: req.body.content,
-    imagePath: imagePath,
+    docPath: docPath,
     creator: req.userData.userId
   });
   Post.updateOne({ _id: req.params.id, creator: req.userData.userId }, post)

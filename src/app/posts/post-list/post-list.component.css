@@ -15,11 +15,11 @@ mat-paginator {
   margin-top: 1rem;
 }
 
-.post-image {
+.post-doc {
   width: 100%;
 }
 
-.post-image img {
+.post-doc img {
   width: 100%;
   box-shadow: 1px 1px 5px rgba(0,9,9,9);
 }

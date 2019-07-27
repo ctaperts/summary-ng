@@ -27,7 +27,7 @@ export class PostsService {
             title: post.title,
             content: post.content,
             id: post._id,
-            imagePath: post.imagePath,
+            docPath: post.docPath,
             creator: post.creator
           }
         }),
@@ -45,14 +45,14 @@ export class PostsService {
   }
 
   getPost(id: string) {
-    return this.http.get<{ _id: string, title: string, content: string, imagePath: string, creator: string }>(BACKEND_URL + id);
+    return this.http.get<{ _id: string, title: string, content: string, docPath: string, creator: string }>(BACKEND_URL + id);
   }
 
-  addPost(title: string, content: string, image: File) {
+  addPost(title: string, content: string, doc: File) {
     const postData = new FormData();
     postData.append('title', title);
     postData.append('content', content);
-    postData.append('image', image, title);
+    postData.append('doc', doc, title);
     this.http
       .post<{ message: string, post: Post }>(
         BACKEND_URL,
@@ -63,16 +63,16 @@ export class PostsService {
       });
   }
 
-  updatePost(id: string, title: string, content: string, image: File | string) {
+  updatePost(id: string, title: string, content: string, doc: File | string) {
     let postData: Post | FormData;
-    if (typeof(image) === 'object') {
+    if (typeof(doc) === 'object') {
       postData = new FormData();
       postData.append('id', id);
       postData.append('title', title);
       postData.append('content', content);
-      postData.append('image', image, title)
+      postData.append('doc', doc, title)
     } else {
-      postData = { id: id, title: title, content: content, imagePath: image, creator: null };
+      postData = { id: id, title: title, content: content, docPath: doc, creator: null };
     }
     this.http
       .put<{ message: string }>(BACKEND_URL + id, postData)

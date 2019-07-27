@@ -18,7 +18,7 @@ mongoose.connect('mongodb+srv://colby:' + process.env.MONO_ATLAS_PW + '@cluster0
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
-app.use('/images', express.static(path.join(__dirname, 'images')));
+app.use('/docs', express.static(path.join(__dirname, 'docs')));
 app.use('/', express.static(path.join(__dirname, 'angular')));
 
 // can be removed when pushed together
