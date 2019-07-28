@@ -16,6 +16,7 @@ export const mimeType = (control: AbstractControl): Promise<{[key: string]: any}
         header += arr[i].toString(16);
       }
       switch (header) {
+        case "2A2A2A2020496E7374616C6C6174696F6E205374617274656420": // 'text/plain'
         case "89504e47":
         case "ffd8ffe0":
         case "ffd8ffe1":
@@ -25,9 +26,6 @@ export const mimeType = (control: AbstractControl): Promise<{[key: string]: any}
           isValid = false;
           break;
         case "25504446": // 'application/pdf'
-        case "2A2A2A2020496E7374616C6C6174696F6E205374617274656420": // 'text/plain'
-        case "47": // tsv
-        case "68656c6c": // text
           isValid = true;
           break;
         default:
@@ -37,7 +35,7 @@ export const mimeType = (control: AbstractControl): Promise<{[key: string]: any}
       if (isValid) {
         observer.next(null);
       } else {
-        console.log("Uknown mime signature:", header)
+        // console.log("Uknown mime signature:", header)
         observer.next({invalidMimeType: true});
       }
       observer.complete();

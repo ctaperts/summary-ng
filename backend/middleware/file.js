@@ -2,7 +2,6 @@ const multer = require('multer');
 
 const MIME_TYPE_MAP = {
   'application/pdf': 'pdf',
-  'text/plain': 'txt',
 };
 
 const storage = multer.diskStorage({

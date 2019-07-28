@@ -5,7 +5,7 @@
       {{ post.title }}
     </mat-expansion-panel-header>
     <div class="post-doc">
-      <img [src]="post.docPath" [alt]="post.title">
+      <pdf-viewer [src]="post.docPath" [render-text]="true" [zoom]="0.5"></pdf-viewer>
     </div>
     <p>
       {{ post.content }}

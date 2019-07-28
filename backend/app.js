@@ -18,22 +18,19 @@ mongoose.connect('mongodb+srv://colby:' + process.env.MONO_ATLAS_PW + '@cluster0
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
-app.use('/docs', express.static(path.join(__dirname, 'docs')));
 app.use('/', express.static(path.join(__dirname, 'angular')));
 
 // can be removed when pushed together
 app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-allow-Headers',
-    'Origin, X-requested-With, Content-Type, Accept, Authorization');
-  res.setHeader('Access-Control-Allow-Methods',
-    'GET, POST, PATCH, PUT, DELETE, OPTIONS');
+  res.setHeader('Access-Control-allow-Headers', 'Origin, X-requested-With, Content-Type, Accept, Authorization');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PATCH, PUT, DELETE, OPTIONS');
   next();
 });
 
-
 app.use('/api/posts', postsRoutes);
 app.use('/api/user', userRoutes);
+app.use('/docs', express.static(path.join(__dirname, 'uploads')));
 
 // for angular node prod setup
 // app.use((res) => {
