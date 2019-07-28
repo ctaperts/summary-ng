@@ -4,7 +4,7 @@
     <mat-expansion-panel-header>
       {{ post.title }}
     </mat-expansion-panel-header>
-  <mat-panel-title align="right" *ngIf="userIsAuthenticated && userId == post.creator">
+  <mat-panel-title align="right">
     <button mat-button color="accent" (click)="onShowSummary(post.id)">
       SHOW {{ showSummary ? 'PDF': 'SUMMARY' }}
     </button>
@@ -12,8 +12,10 @@
       {{ showAllPDFPages ? 'FIRST' : 'ALL'  }} PAGE{{ showAllPDFPages ? '' : 'S' }}
     </button>
     <button mat-button color="accent" (click)="onResize(post.id)">{{ PDFSize * 100 }}%</button>
-    <a mat-button color="primary" [routerLink]="['/edit', post.id]">EDIT</a>
-    <button mat-button color="warn" (click)="onDelete(post.id)">DELETE</button>
+    <a *ngIf="userIsAuthenticated && userId == post.creator"
+      mat-button color="primary" [routerLink]="['/edit', post.id]">EDIT</a>
+    <button *ngIf="userIsAuthenticated && userId == post.creator"
+      mat-button color="warn" (click)="onDelete(post.id)">DELETE</button>
   </mat-panel-title>
   <mat-panel-description>
     <p>
