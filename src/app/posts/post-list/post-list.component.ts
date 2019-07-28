@@ -23,6 +23,13 @@ export class PostListComponent implements OnInit, OnDestroy {
   pageSizeOptions = [1, 2, 5, 10];
   userIsAuthenticated = false;
 
+  showSummary = false;
+  showPDF = true;
+  showAllPDFPages = false;
+  PDFSizes = [0.5, 0.75, 1];
+  PDFSize = 0.5;
+
+
   constructor(public postsService: PostsService, private authService: AuthService) {}
 
   ngOnInit() {
@@ -59,6 +66,32 @@ export class PostListComponent implements OnInit, OnDestroy {
     }, () => {
       this.isLoading = false;
     });
+  }
+
+  onShowSummary(postId: string) {
+    let showingSummaryPage = false;
+    if (! this.showSummary) {
+      showingSummaryPage = true;
+    }
+    this.showSummary = showingSummaryPage
+  }
+
+  onChangePageLayout(postId: string) {
+    let currentPDFPages = true;
+    if (this.showAllPDFPages) {
+      currentPDFPages = false;
+    }
+    this.showAllPDFPages = currentPDFPages;
+  }
+
+  onResize(postId: string) {
+    let currentPDFSize;
+    let currentPDFSizeIndex = this.PDFSizes.indexOf(this.PDFSize)
+    currentPDFSize = this.PDFSizes[currentPDFSizeIndex + 1];
+    if (! currentPDFSize) {
+      currentPDFSize = this.PDFSizes[0];
+    }
+    this.PDFSize = currentPDFSize;
   }
 
   ngOnDestroy() {

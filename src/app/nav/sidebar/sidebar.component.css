@@ -1,5 +1,4 @@
 mat-sidenav-container {
-  height: 100%;
 }
 
 mat-sidenav {
@@ -11,7 +10,7 @@ mat-sidenav {
   left: 0;
   background-color: #EFF7CF;
   overflow-x: hidden;
-  padding-top: 20px;
+  padding-top: 5px;
 }
 
 .mat-button {
@@ -19,7 +18,7 @@ mat-sidenav {
 }
 
 .content {
-  margin-top: 64px;
+  margin-top: 10px;
   color: #420C14;
   text-decoration: none;
 }
@@ -36,7 +35,7 @@ ul {
 }
 
 .side-drawer-container {
-  margin-top: 64px;
+  margin-top: 0px;
   width: 100%;
 }
 
