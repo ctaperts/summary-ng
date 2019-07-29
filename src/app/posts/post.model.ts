@@ -4,4 +4,5 @@ export interface Post {
   content: string;
   docPath: string;
   creator: string;
+  summary: string;
 }
