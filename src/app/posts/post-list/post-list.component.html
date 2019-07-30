@@ -1,36 +1,36 @@
 <mat-spinner *ngIf="isLoading"></mat-spinner>
 <mat-accordion multi="true" *ngIf="posts.length > 0 && !isLoading" >
-  <mat-expansion-panel *ngFor="let post of posts">
+  <mat-expansion-panel *ngFor="let post of postsAndSettings | keyvalue">
     <mat-expansion-panel-header>
-      {{ post.title }}
+      {{ post.value.title }}
     </mat-expansion-panel-header>
   <mat-panel-title align="right">
-    <button mat-button color="accent" (click)="onChangePageLayout(post.id)"
-      *ngIf="! showSummary">
-      {{ showAllPDFPages ? 'FIRST' : 'ALL'  }} PAGE{{ showAllPDFPages ? '' : 'S' }}
+    <button mat-button color="accent" (click)="onChangePageLayout(post.value.id)"
+      *ngIf="! post.value.showSummary">
+      {{ post.value.showAllPDFPages ? 'FIRST' : 'ALL'  }} PAGE{{ post.value.showAllPDFPages ? '' : 'S' }}
     </button>
-    <button mat-button color="accent" (click)="onResize(post.id)"
-      *ngIf="! showSummary">
-      {{ PDFSize * 100 }}%
+    <button mat-button color="accent" (click)="onResize(post.value.id)"
+      *ngIf="! post.value.showSummary">
+      {{ post.value.PDFSize * 100 }}%
     </button>
-    <button mat-button color="accent" (click)="onShowSummary(post.id)">
-      SHOW {{ showSummary ? 'PDF': 'NLP' }}
+    <button mat-button color="accent" (click)="onShowSummary(post.value.id)">
+      SHOW {{ post.value.showSummary ? 'PDF': 'NLP' }}
     </button>
-    <a *ngIf="userIsAuthenticated && userId == post.creator"
-      mat-button color="primary" [routerLink]="['/edit', post.id]">EDIT</a>
-    <button *ngIf="userIsAuthenticated && userId == post.creator"
-      mat-button color="warn" (click)="onDelete(post.id)">DELETE</button>
+    <a *ngIf="userIsAuthenticated && userId == post.value.creator"
+      mat-button color="primary" [routerLink]="['/edit', post.value.id]">EDIT</a>
+    <button *ngIf="userIsAuthenticated && userId == post.value.creator"
+      mat-button color="warn" (click)="onDelete(post.value.id)">DELETE</button>
   </mat-panel-title>
   <mat-panel-description>
     <p>
     Description:<br>
-    {{ post.content }}
+    {{ post.value.content }}
     </p>
   </mat-panel-description>
-  <div class="post-doc" *ngIf="! showSummary">
-    <pdf-viewer [src]="post.docPath" [show-all]="showAllPDFPages" [render-text]="true" [zoom]="PDFSize"></pdf-viewer>
+  <div class="post-doc" *ngIf="! post.value.showSummary">
+    <pdf-viewer [src]="post.value.docPath" [show-all]="post.value.showAllPDFPages" [render-text]="true" [zoom]="post.value.PDFSize"></pdf-viewer>
   </div>
-  <div class="post-summary" *ngIf="showSummary">
+  <div class="post-summary" *ngIf="post.value.showSummary">
     <p>
     Example Summary
     </p>

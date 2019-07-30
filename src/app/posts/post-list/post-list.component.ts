@@ -13,6 +13,7 @@ import { AuthService } from '../../auth/auth.service';
 })
 export class PostListComponent implements OnInit, OnDestroy {
   posts: Post[] = [];
+  postsAndSettings = {};
   private postsSub: Subscription;
   private authStatusSub: Subscription;
   isLoading = false;
@@ -23,11 +24,7 @@ export class PostListComponent implements OnInit, OnDestroy {
   pageSizeOptions = [1, 2, 5, 10];
   userIsAuthenticated = false;
 
-  showSummary = false;
-  showPDF = true;
-  showAllPDFPages = false;
   PDFSizes = [0.5, 0.75, 1];
-  PDFSize = 0.5;
 
 
   constructor(public postsService: PostsService, private authService: AuthService) {}
@@ -41,6 +38,15 @@ export class PostListComponent implements OnInit, OnDestroy {
         this.isLoading = false;
         this.totalPosts = postData.postCount;
         this.posts = postData.posts;
+        this.posts.map(post => {
+          this.postsAndSettings[post.id] = {
+              ...post,
+              showSummary: false,
+              showPDF: true,
+              showAllPDFPages: false,
+              PDFSize: this.PDFSizes[0]
+          };
+        });
       });
     this.userIsAuthenticated = this.authService.getIsAuth();
     this.isLoading = false;
@@ -53,9 +59,9 @@ export class PostListComponent implements OnInit, OnDestroy {
 
   onChangedPage(pageData: PageEvent) {
     this.isLoading = true;
-    console.log(pageData);
     this.currentPage = pageData.pageIndex + 1
     this.postsPerPage = pageData.pageSize
+    this.postsAndSettings = {};
     this.postsService.getPosts(this.postsPerPage, this.currentPage);
   }
 
@@ -69,30 +75,36 @@ export class PostListComponent implements OnInit, OnDestroy {
   }
 
   onShowSummary(postId: string) {
-    let showingSummaryPage = false;
-    if (! this.showSummary) {
-      showingSummaryPage = true;
+    let newPostAndSetting = this.postsAndSettings[postId]
+    if (newPostAndSetting.showSummary) {
+      newPostAndSetting.showSummary = false
+    } else {
+      newPostAndSetting.showSummary = true
     }
-    this.showSummary = showingSummaryPage
+    this.postsAndSettings[postId] = newPostAndSetting
   }
 
   onChangePageLayout(postId: string) {
-    let currentPDFPages = true;
-    if (this.showAllPDFPages) {
-      currentPDFPages = false;
+    let newPostAndSetting = this.postsAndSettings[postId]
+    if (newPostAndSetting.showAllPDFPages) {
+      newPostAndSetting.showAllPDFPages = false;
+    } else {
+      newPostAndSetting.showAllPDFPages = true;
     }
-    this.showAllPDFPages = currentPDFPages;
+    this.postsAndSettings[postId] = newPostAndSetting
   }
 
   onResize(postId: string) {
+    let newPostAndSetting = this.postsAndSettings[postId]
     let currentPDFSize;
-    let currentPDFSizeIndex = this.PDFSizes.indexOf(this.PDFSize) + 1
+    let currentPDFSizeIndex = this.PDFSizes.indexOf(newPostAndSetting.PDFSize) + 1
     if (currentPDFSizeIndex !== this.PDFSizes.length) {
       currentPDFSize = this.PDFSizes[currentPDFSizeIndex];
     } else {
-      currentPDFSize = this.PDFSizes[0];
+      currentPDFSize =this.PDFSizes[0];
     }
-    this.PDFSize = currentPDFSize;
+    newPostAndSetting.PDFSize = currentPDFSize;
+    this.postsAndSettings[postId] = newPostAndSetting
   }
 
   ngOnDestroy() {
