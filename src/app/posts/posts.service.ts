@@ -29,7 +29,6 @@ export class PostsService {
             id: post._id,
             docPath: post.docPath,
             creator: post.creator,
-            summary: post.summary
           }
         }),
           maxPosts: postData.maxPosts
@@ -46,15 +45,14 @@ export class PostsService {
   }
 
   getPost(id: string) {
-    return this.http.get<{ _id: string, title: string, content: string, docPath: string, creator: string, summary: string }>(BACKEND_URL + id);
+    return this.http.get<{ _id: string, title: string, content: string, docPath: string, creator: string }>(BACKEND_URL + id);
   }
 
-  addPost(title: string, content: string, doc: File, summary: string) {
+  addPost(title: string, content: string, doc: File ) {
     const postData = new FormData();
     postData.append('title', title);
     postData.append('content', content);
     postData.append('doc', doc, title);
-    postData.append('summary', summary);
     this.http
       .post<{ message: string, post: Post }>(
         BACKEND_URL,
@@ -65,7 +63,7 @@ export class PostsService {
       });
   }
 
-  updatePost(id: string, title: string, content: string, doc: File | string, summary: string) {
+  updatePost(id: string, title: string, content: string, doc: File | string ) {
     let postData: Post | FormData;
     if (typeof(doc) === 'object') {
       postData = new FormData();
@@ -73,9 +71,8 @@ export class PostsService {
       postData.append('title', title);
       postData.append('content', content);
       postData.append('doc', doc, title);
-      postData.append('summary', summary);
     } else {
-      postData = { id: id, title: title, content: content, docPath: doc, creator: null, summary: null };
+      postData = { id: id, title: title, content: content, docPath: doc, creator: null };
     }
     this.http
       .put<{ message: string }>(BACKEND_URL + id, postData)

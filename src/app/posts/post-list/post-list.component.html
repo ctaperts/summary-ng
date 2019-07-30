@@ -5,13 +5,17 @@
       {{ post.title }}
     </mat-expansion-panel-header>
   <mat-panel-title align="right">
+    <button mat-button color="accent" (click)="onChangePageLayout(post.id)"
+      *ngIf="! showSummary">
+      {{ showAllPDFPages ? 'FIRST' : 'ALL'  }} PAGE{{ showAllPDFPages ? '' : 'S' }}
+    </button>
+    <button mat-button color="accent" (click)="onResize(post.id)"
+      *ngIf="! showSummary">
+      {{ PDFSize * 100 }}%
+    </button>
     <button mat-button color="accent" (click)="onShowSummary(post.id)">
       SHOW {{ showSummary ? 'PDF': 'SUMMARY' }}
     </button>
-    <button mat-button color="accent" (click)="onChangePageLayout(post.id)">
-      {{ showAllPDFPages ? 'FIRST' : 'ALL'  }} PAGE{{ showAllPDFPages ? '' : 'S' }}
-    </button>
-    <button mat-button color="accent" (click)="onResize(post.id)">{{ PDFSize * 100 }}%</button>
     <a *ngIf="userIsAuthenticated && userId == post.creator"
       mat-button color="primary" [routerLink]="['/edit', post.id]">EDIT</a>
     <button *ngIf="userIsAuthenticated && userId == post.creator"

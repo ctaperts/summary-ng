@@ -6,7 +6,7 @@ exports.postCreate = (req, res) => {
     title: req.body.title,
     content: req.body.content,
     docPath: url + '/docs/' + req.file.filename,
-    creator: req.userData.userId
+    creator: req.userData.userId,
   });
   post.save()
     .then(result => {
@@ -39,7 +39,7 @@ exports.postEdit = (req, res) => {
     title: req.body.title,
     content: req.body.content,
     docPath: docPath,
-    creator: req.userData.userId
+    creator: req.userData.userId,
   });
   Post.updateOne({ _id: req.params.id, creator: req.userData.userId }, post)
     .then(result => {
