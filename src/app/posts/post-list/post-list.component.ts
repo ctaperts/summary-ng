@@ -86,9 +86,10 @@ export class PostListComponent implements OnInit, OnDestroy {
 
   onResize(postId: string) {
     let currentPDFSize;
-    let currentPDFSizeIndex = this.PDFSizes.indexOf(this.PDFSize)
-    currentPDFSize = this.PDFSizes[currentPDFSizeIndex + 1];
-    if (! currentPDFSize) {
+    let currentPDFSizeIndex = this.PDFSizes.indexOf(this.PDFSize) + 1
+    if (currentPDFSizeIndex !== this.PDFSizes.length) {
+      currentPDFSize = this.PDFSizes[currentPDFSizeIndex];
+    } else {
       currentPDFSize = this.PDFSizes[0];
     }
     this.PDFSize = currentPDFSize;
