@@ -5,7 +5,7 @@ function bail(err, conn) {
   if (conn) conn.close(function() { process.exit(1); });
 }
 
-exports.nlp = async (req, res) => {
+exports.nlp = (req, res) => {
   // console.log(req.body);
   const input = 'hello world';
 
