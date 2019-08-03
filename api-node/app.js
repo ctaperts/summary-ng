@@ -3,13 +3,12 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 
-const amqp = require('amqplib/callback_api');
 const postsRoutes = require('./routes/posts');
 const userRoutes = require('./routes/user');
+const nlpRoutes = require('./routes/nlp');
 
 const app = express();
 
-app.use('/nlp', nlp);
 
 mongoose.Promise = Promise;
 
@@ -37,30 +36,7 @@ app.use((req, res, next) => {
 app.use('/api/posts', postsRoutes);
 app.use('/api/user', userRoutes);
 app.use('/docs', express.static(path.join(__dirname, 'uploads')));
-
-function nlp(req, res) {
-  // console.log(req.body);
-  var input = 'hello world';
-
-  try {
-    amqp.connect('amqp://localhost', function (err, conn) {
-      conn.createChannel(function (err, ch) {
-        var q = 'nlp';
-        var results = 'results';
-        ch.assertQueue(q, { durable: false });
-
-        ch.sendToQueue(q, new Buffer(JSON.stringify(input)));
-        ch.consume(results, function (msg) {
-          console.log(msg.content.toString());
-          res.send(msg.content.toString());
-        }, { noAck: true });
-      });
-      setTimeout(function () { conn.close(); }, 100);
-    });
-  } catch (e) {
-    console.error('[AMQP] publish', e.message);
-  }
-}
+app.use('/nlp', nlpRoutes);
 
 // for angular node prod setup
 // app.use((res) => {
