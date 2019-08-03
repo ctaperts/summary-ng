@@ -15,7 +15,7 @@ exports.nlp = async (req, res) => {
     conn.createChannel(function (err, ch) {
       if (err !== null) return bail(err, conn);
       var q = 'nlp';
-      var results = 'results';
+      var resultsQueue = 'results';
 
       function answer(msg) {
         console.log(msg.content.toString());
@@ -26,7 +26,7 @@ exports.nlp = async (req, res) => {
       ch.assertQueue(q, { durable: false }, function(err, ok) {
         if (err !== null) return bail(err, conn);
         const queue = ok.queue;
-        ch.consume(results, answer, { noAck: true });
+        ch.consume(resultsQueue, answer, { noAck: true });
         ch.sendToQueue(queue, new Buffer(JSON.stringify(input)));
         setTimeout(function () { conn.close(); }, 100);
       });
