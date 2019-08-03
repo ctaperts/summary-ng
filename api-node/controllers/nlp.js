@@ -7,15 +7,15 @@ function bail(err, conn) {
 
 exports.nlp = async (req, res) => {
   // console.log(req.body);
-  var input = 'hello world';
+  const input = 'hello world';
 
 
   function mq(err, conn) {
     if (err !== null) return bail(err, conn);
     conn.createChannel(function (err, ch) {
       if (err !== null) return bail(err, conn);
-      var q = 'nlp';
-      var resultsQueue = 'results';
+      const q = 'nlp';
+      const resultsQueue = 'results';
 
       function answer(msg) {
         console.log(msg.content.toString());
