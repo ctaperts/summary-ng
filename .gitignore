@@ -2,9 +2,12 @@
 
 # Node environment variables
 nodemon.json
+api-node/uploads/*
 
 # production output
 backend/angular/
+
+*.pyc
 
 # compiled output
 /dist

@@ -3,10 +3,14 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 
+const amqp = require('amqplib/callback_api');
 const postsRoutes = require('./routes/posts');
 const userRoutes = require('./routes/user');
 
 const app = express();
+
+app.use('/nlp', nlp);
+
 
 mongoose.connect('mongodb+srv://colby:' + process.env.MONO_ATLAS_PW + '@cluster0-gylxp.mongodb.net/mean-course?retryWrites=true&w=majority')
   .then(() => {
@@ -31,6 +35,32 @@ app.use((req, res, next) => {
 app.use('/api/posts', postsRoutes);
 app.use('/api/user', userRoutes);
 app.use('/docs', express.static(path.join(__dirname, 'uploads')));
+
+
+function nlp(req, res) {
+  console.log(req.body);
+  var input = ['hello world'];
+
+  try {
+  amqp.connect('amqp://localhost', function (err, conn) {
+    conn.createChannel(function (err, ch) {
+      var simulations = 'simulations';
+      ch.assertQueue(simulations, { durable: false });
+      var results = 'results';
+      ch.assertQueue(results, { durable: false });
+
+      ch.sendToQueue(simulations, new Buffer(JSON.stringify(input)));
+
+      ch.consume(results, function (msg) {
+        res.send(msg.content.toString());
+      }, { noAck: true });
+    });
+    setTimeout(function () { conn.close(); }, 500);
+  });
+  } catch (e) {
+    console.error('[AMQP] publish', e.message);
+  }
+}
 
 // for angular node prod setup
 // app.use((res) => {
