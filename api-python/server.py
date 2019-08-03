@@ -3,8 +3,11 @@
 import json
 import pika
 import nlp
+try:
+    connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
+except pika.exceptions.AMQPConnectionError:
+    raise SystemExit('Issue connecting to rabbitmq, is it started?')
 
-connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
 channel = connection.channel()
 
 channel.queue_declare(queue='simulations')
@@ -29,5 +32,7 @@ channel.basic_consume('simulations', callback)
 # channel.basic_consume(callback,
 #                   queue='simulations',
 #                   no_ack=True)
-
-channel.start_consuming()
+try:
+    channel.start_consuming()
+except KeyboardInterrupt:
+    raise SystemExit('\nKeyboard Interrupt')

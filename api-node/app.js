@@ -11,13 +11,15 @@ const app = express();
 
 app.use('/nlp', nlp);
 
+mongoose.Promise = Promise;
 
 mongoose.connect('mongodb+srv://colby:' + process.env.MONO_ATLAS_PW + '@cluster0-gylxp.mongodb.net/mean-course?retryWrites=true&w=majority')
   .then(() => {
     console.log('Connected to the database');
   })
-  .catch(() => {
-    console.log('Connection failed');
+  .catch((error) => {
+    console.log('Connection failed:',
+      error.name + '. Possible issues: authentication or connection');
   });
 
 app.use(bodyParser.json());
