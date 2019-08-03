@@ -10,29 +10,21 @@ except pika.exceptions.AMQPConnectionError:
 
 channel = connection.channel()
 
-channel.queue_declare(queue='simulations')
+channel.queue_declare(queue='nlp')
 channel.queue_declare(queue='results')
 
-#def callback(body):
 def callback(ch, method, properties, body):
-    requestParams = json.loads(body.decode('utf-8'))
-    results = {'results': None}
-    if requestParams[0]:
-        results = nlp.summarize(requestParams[0])
-
-        # send a message back
+    body = body.decode("utf-8")
+    results = nlp.summarize(body)
     channel.basic_publish(exchange='',
                           routing_key='results',
                           body=json.dumps(results, ensure_ascii=False))
 
-    # connection.close()
+channel.basic_consume(queue='nlp', on_message_callback=callback, auto_ack=True)
 
-#  receive message and complete simulation
-channel.basic_consume('simulations', callback)
-# channel.basic_consume(callback,
-#                   queue='simulations',
-#                   no_ack=True)
+print('MQ Waiting for messages...')
 try:
     channel.start_consuming()
 except KeyboardInterrupt:
+    connection.close()
     raise SystemExit('\nKeyboard Interrupt')

@@ -38,27 +38,25 @@ app.use('/api/posts', postsRoutes);
 app.use('/api/user', userRoutes);
 app.use('/docs', express.static(path.join(__dirname, 'uploads')));
 
-
 function nlp(req, res) {
-  console.log(req.body);
-  var input = ['hello world'];
+  // console.log(req.body);
+  var input = 'hello world';
 
   try {
-  amqp.connect('amqp://localhost', function (err, conn) {
-    conn.createChannel(function (err, ch) {
-      var simulations = 'simulations';
-      ch.assertQueue(simulations, { durable: false });
-      var results = 'results';
-      ch.assertQueue(results, { durable: false });
+    amqp.connect('amqp://localhost', function (err, conn) {
+      conn.createChannel(function (err, ch) {
+        var q = 'nlp';
+        var results = 'results';
+        ch.assertQueue(q, { durable: false });
 
-      ch.sendToQueue(simulations, new Buffer(JSON.stringify(input)));
-
-      ch.consume(results, function (msg) {
-        res.send(msg.content.toString());
-      }, { noAck: true });
+        ch.sendToQueue(q, new Buffer(JSON.stringify(input)));
+        ch.consume(results, function (msg) {
+          console.log(msg.content.toString());
+          res.send(msg.content.toString());
+        }, { noAck: true });
+      });
+      setTimeout(function () { conn.close(); }, 100);
     });
-    setTimeout(function () { conn.close(); }, 500);
-  });
   } catch (e) {
     console.error('[AMQP] publish', e.message);
   }
