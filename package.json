@@ -10,7 +10,7 @@
     "lint": "ng lint",
     "e2e": "ng e2e",
     "dev-node": "nodemon ./api-node/server.js",
-    "dev": "concurrently 'nodemon --exec /home/colby/conda/bin/python3 ./api-python/server.py' 'nodemon ./api-node/server.js' 'ng serve'"
+    "dev": "concurrently 'nodemon --exec /home/colby/conda/bin/python3 ./mq-python/server.py' 'nodemon ./api-node/server.js' 'ng serve'"
   },
   "private": true,
   "dependencies": {
