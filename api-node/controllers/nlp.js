@@ -1,4 +1,6 @@
 const amqp = require('amqplib/callback_api');
+const pdfUtility = require('node-ts-ocr');
+
 const Post = require('../models/post');
 
 async function getOnePostDocPath(postId) {
@@ -17,6 +19,10 @@ async function getOnePostDocPath(postId) {
   return retValue;
 }
 
+async function getPDFText(pdfFile) {
+  return await pdfUtility.Ocr.extractText(pdfFile);
+}
+
 function bail(err, conn) {
   console.error(err);
   if (conn) conn.close(function() { process.exit(1); });
@@ -26,7 +32,22 @@ exports.getText = (req, res) => {
   const exampleDoc = '5d44eaeb5ad27d4c2ec95fa0';
   getOnePostDocPath(exampleDoc)
     .then((postDoc) => {
-      res.send(postDoc);
+      // get filename and check if it is defined
+      const fileName = postDoc.split('/')[4];
+      if (! fileName) {
+        throw new Error();
+      }
+      const pathToUploads = process.env.UPLOAD_PATH + '/' + fileName;
+      getPDFText(pathToUploads)
+        .then((result) => {
+          res.status(200).json({result});
+        });
+    })
+    .catch((error) => {
+      res.status(404).json({
+        message: 'File not found, check if file exists or for incorrect path',
+        error: error
+      });
     });
 };
 

@@ -11,7 +11,7 @@ const storage = multer.diskStorage({
     if (isValid) {
       error = null;
     }
-    cb(error, 'api-node/uploads');
+    cb(error, process.env.UPLOAD_PATH);
   },
   filename: (req, file, cb) => {
     const name = file.originalname.toLowerCase().split(' ').join('-');

@@ -1,6 +1,7 @@
 {
   "env": {
     "MONO_ATLAS_PW": "",
-    "JWT_KEY": ""
+    "JWT_KEY": "",
+    "UPLOAD_PATH": "api-node/uploads"
   }
 }
