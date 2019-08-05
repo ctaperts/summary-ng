@@ -89,6 +89,7 @@ exports.postGet = (req, res) => {
 };
 
 exports.postGetOne = (req, res) => {
+  console.log(req.params.id);
   Post.findById(req.params.id)
     .then(post => {
       if (post) {

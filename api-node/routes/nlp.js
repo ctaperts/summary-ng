@@ -7,5 +7,6 @@ const nlpController = require('../controllers/nlp');
 
 // router.put('/:id', checkAuth, nlpController.summaryCreate);
 router.use('/summary', nlpController.nlp);
+router.use('/test', nlpController.getText);
 
 module.exports = router;
