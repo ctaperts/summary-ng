@@ -6,7 +6,6 @@ const router = express.Router();
 const nlpController = require('../controllers/nlp');
 
 // router.put('/:id', checkAuth, nlpController.summaryCreate);
-router.use('/summary', nlpController.nlp);
-router.use('/test', nlpController.getText);
+router.post('/doc', nlpController.processText);
 
 module.exports = router;

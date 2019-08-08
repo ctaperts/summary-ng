@@ -23,24 +23,26 @@ async function getPDFText(pdfFile) {
   return await pdfUtility.Ocr.extractText(pdfFile);
 }
 
-function bail(err, conn) {
-  console.error(err);
-  if (conn) conn.close(function() { process.exit(1); });
-}
-
-exports.getText = (req, res) => {
-  const exampleDoc = '5d44eaeb5ad27d4c2ec95fa0';
-  getOnePostDocPath(exampleDoc)
+exports.processText = (req, res) => {
+  getOnePostDocPath(req.body.docId)
     .then((postDoc) => {
       // get filename and check if it is defined
       const fileName = postDoc.split('/')[4];
-      if (! fileName) {
-        throw new Error();
+      if (!fileName) {
+        throw new Error('Could not find file');
       }
       const pathToUploads = process.env.UPLOAD_PATH + '/' + fileName;
       getPDFText(pathToUploads)
-        .then((result) => {
-          res.status(200).json({result});
+        .then((docText) => {
+          nlp(docText).then((result) => {
+            res.status(200).json(result);
+          })
+            .catch((error) => {
+              res.status(404).json({
+                message: 'Error returning processed document',
+                error: error
+              });
+            });
         });
     })
     .catch((error) => {
@@ -51,38 +53,26 @@ exports.getText = (req, res) => {
     });
 };
 
-exports.nlp = (req, res) => {
-  // console.log(req.body);
-  const input = 'hello world';
-
-
-  function mq(err, conn) {
-    if (err !== null) return bail(err, conn);
-    conn.createChannel(function (err, ch) {
-      if (err !== null) return bail(err, conn);
-      const q = 'nlp';
-      const resultsQueue = 'results';
-
-      function answer(msg) {
-        console.log(msg.content.toString());
-        res.send(msg.content.toString());
-        ch.close(function() { conn.close(); });
-      }
-
-      ch.assertQueue(q, { durable: false }, function(err, ok) {
-        if (err !== null) return bail(err, conn);
-        const queue = ok.queue;
-        ch.consume(resultsQueue, answer, { noAck: true });
-        ch.sendToQueue(queue, new Buffer(JSON.stringify(input)));
-        setTimeout(function () { conn.close(); }, 100);
+const nlp = (text) => {
+  const messageQueueConnectionString = 'amqp://localhost';
+  return new Promise((resolve, reject) => {
+    amqp.connect(messageQueueConnectionString, function(err, connection) {
+      // timeout and return as error
+      setTimeout(function () { reject(connection.close()); }, 10000);
+      connection.createChannel(function(err, channel) {
+        channel.assertQueue('nlp', { durable: false }, function(err, ok) {
+          const queue = ok.queue;
+          channel.consume('results', function(msg) {
+            channel.close(function() { connection.close(); });
+            // return message
+            resolve(JSON.parse(msg.content.toString()));
+          }, { noAck: true });
+          channel.sendToQueue(queue, new Buffer(JSON.stringify(text)));
+          if (err) {
+            return reject(err);
+          }
+        });
       });
-
     });
-  }
-
-  try {
-    amqp.connect('amqp://localhost', mq);
-  } catch (e) {
-    console.error('[AMQP] publish', e.message);
-  }
+  });
 };
