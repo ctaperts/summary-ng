@@ -24,7 +24,8 @@ async function getPDFText(pdfFile) {
 }
 
 exports.processText = (req, res) => {
-  getOnePostDocPath(req.body.docId)
+  console.log(req.body);
+  getOnePostDocPath(req.body.postId)
     .then((postDoc) => {
       // get filename and check if it is defined
       const fileName = postDoc.split('/')[4];
@@ -35,7 +36,10 @@ exports.processText = (req, res) => {
       getPDFText(pathToUploads)
         .then((docText) => {
           nlp(docText).then((result) => {
-            res.status(200).json(result);
+            res.status(200).json({
+              message: 'Successfully process document',
+              summary: result
+            });
           })
             .catch((error) => {
               res.status(404).json({

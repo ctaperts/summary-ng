@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { PageEvent } from '@angular/material'
 import { Subscription } from 'rxjs';
 
-import { Post } from '../post.model';
+import { Post, NLP } from '../post.model';
 import { PostsService } from '../posts.service';
 import { AuthService } from '../../auth/auth.service';
 
@@ -13,10 +13,12 @@ import { AuthService } from '../../auth/auth.service';
 })
 export class PostListComponent implements OnInit, OnDestroy {
   posts: Post[] = [];
+  postNLP = <NLP>{};
   postsAndSettings = {};
   private postsSub: Subscription;
   private authStatusSub: Subscription;
   isLoading = false;
+  isLoadingNlp = false;
   totalPosts = 0;
   postsPerPage = 2;
   currentPage = 1;
@@ -40,11 +42,12 @@ export class PostListComponent implements OnInit, OnDestroy {
         this.posts = postData.posts;
         this.posts.map(post => {
           this.postsAndSettings[post.id] = {
-              ...post,
-              showSummary: false,
-              showPDF: true,
-              showAllPDFPages: false,
-              PDFSize: this.PDFSizes[0]
+            ...post,
+            nlp: this.postNLP,
+            showSummary: false,
+            showPDF: true,
+            showAllPDFPages: false,
+            PDFSize: this.PDFSizes[0]
           };
         });
       });
@@ -63,6 +66,21 @@ export class PostListComponent implements OnInit, OnDestroy {
     this.postsPerPage = pageData.pageSize
     this.postsAndSettings = {};
     this.postsService.getPosts(this.postsPerPage, this.currentPage);
+  }
+
+  onProcessNLP(postId: string) {
+    let newPostAndSetting = this.postsAndSettings[postId]
+    this.isLoadingNlp = true;
+    this.postsService.processNlpPost(postId)
+      .subscribe((nlpResponseData) => {
+        if (nlpResponseData.summary.text) {
+          newPostAndSetting.nlp.summary = this.transform(nlpResponseData.summary.text);
+        } else {
+          newPostAndSetting.nlp.summary = 'Summary could not be created';
+        }
+        this.postsAndSettings[postId] = newPostAndSetting;
+        this.isLoadingNlp = false;
+      });
   }
 
   onDelete(postId: string) {
@@ -93,6 +111,10 @@ export class PostListComponent implements OnInit, OnDestroy {
       newPostAndSetting.showAllPDFPages = true;
     }
     this.postsAndSettings[postId] = newPostAndSetting
+  }
+
+  transform(value: string): any {
+    return value.replace(/\\n\\n/g, '<br>').replace(/\\n/g, ' ').split(/\ {10,}/g).join('<br><br>')
   }
 
   onResize(postId: string) {

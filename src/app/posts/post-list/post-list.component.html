@@ -5,15 +5,19 @@
       {{ post.value.title }}
     </mat-expansion-panel-header>
   <mat-panel-title align="right">
-    <button mat-button color="accent" (click)="onChangePageLayout(post.value.id)"
+    <button mat-button color="" (click)="onChangePageLayout(post.value.id)"
       *ngIf="! post.value.showSummary">
       {{ post.value.showAllPDFPages ? 'FIRST' : 'ALL'  }} PAGE{{ post.value.showAllPDFPages ? '' : 'S' }}
     </button>
-    <button mat-button color="accent" (click)="onResize(post.value.id)"
+    <button mat-button color="" (click)="onResize(post.value.id)"
       *ngIf="! post.value.showSummary">
       {{ post.value.PDFSize * 100 }}%
     </button>
-    <button mat-button color="accent" (click)="onShowSummary(post.value.id)">
+    <button *ngIf="userIsAuthenticated && userId == post.value.creator && post.value.showSummary && post.value.nlp.summary"
+    mat-button color="" (click)="onProcessNLP(post.value.id)">
+      RE-PROCESS
+    </button>
+    <button mat-button color="" (click)="onShowSummary(post.value.id)">
       SHOW {{ post.value.showSummary ? 'PDF': 'NLP' }}
     </button>
     <a *ngIf="userIsAuthenticated && userId == post.value.creator"
@@ -31,9 +35,15 @@
     <pdf-viewer [src]="post.value.docPath" [show-all]="post.value.showAllPDFPages" [render-text]="true" [zoom]="post.value.PDFSize"></pdf-viewer>
   </div>
   <div class="post-summary" *ngIf="post.value.showSummary">
-    <p>
-    Example Summary
-    </p>
+    <div *ngIf="!isLoadingNlp" class="nlp">
+      <button *ngIf="userIsAuthenticated && userId == post.value.creator && ! post.value.nlp.summary"
+      mat-button color="" (click)="onProcessNLP(post.value.id)">
+        PROCESS DOCUMENT
+      </button>
+      <div class="summary" *ngIf="post.value.nlp.summary" [innerHtml]="post.value.nlp.summary">
+      </div>
+    </div>
+    <mat-spinner *ngIf="isLoadingNlp"></mat-spinner>
   </div>
   </mat-expansion-panel>
 </mat-accordion>

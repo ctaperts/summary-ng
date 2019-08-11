@@ -35,8 +35,8 @@ app.use((req, res, next) => {
 
 app.use('/api/posts', postsRoutes);
 app.use('/api/user', userRoutes);
+app.use('/api/nlp', nlpRoutes);
 app.use('/docs', express.static(path.join(__dirname, 'uploads')));
-app.use('/nlp', nlpRoutes);
 
 // for angular node prod setup
 // app.use((res) => {

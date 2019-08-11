@@ -63,6 +63,14 @@ export class PostsService {
       });
   }
 
+  processNlpPost(postId: string) {
+    return this.http
+      .post<{ message: string, summary: any }>(
+        environment.apiUrl + '/nlp/doc',
+        {'postId': postId}
+      );
+  }
+
   updatePost(id: string, title: string, content: string, doc: File | string ) {
     let postData: Post | FormData;
     if (typeof(doc) === 'object') {
