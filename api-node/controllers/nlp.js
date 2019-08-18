@@ -1,4 +1,4 @@
-const amqp = require('amqplib/callback_api');
+// const amqp = require('amqp-connection-manager');
 const pdfUtility = require('node-ts-ocr');
 
 const Post = require('../models/post');
@@ -24,7 +24,6 @@ async function getPDFText(pdfFile) {
 }
 
 exports.processText = (req, res) => {
-  console.log(req.body);
   getOnePostDocPath(req.body.postId)
     .then((postDoc) => {
       // get filename and check if it is defined
@@ -57,26 +56,70 @@ exports.processText = (req, res) => {
     });
 };
 
-const nlp = (text) => {
-  const messageQueueConnectionString = 'amqp://localhost';
-  return new Promise((resolve, reject) => {
-    amqp.connect(messageQueueConnectionString, function(err, connection) {
-      // timeout and return as error
-      setTimeout(function () { reject(connection.close()); }, 10000);
-      connection.createChannel(function(err, channel) {
-        channel.assertQueue('nlp', { durable: false }, function(err, ok) {
-          const queue = ok.queue;
-          channel.consume('results', function(msg) {
-            channel.close(function() { connection.close(); });
-            // return message
-            resolve(JSON.parse(msg.content.toString()));
-          }, { noAck: true });
-          channel.sendToQueue(queue, new Buffer(JSON.stringify(text)));
-          if (err) {
-            return reject(err);
+// const sureThing = promise =>
+//     promise
+//     .then(data => ({ok: true, data}))
+//     .catch(error => Promise.resolve({ok: false, error}));
+
+const nlp = async (text) => {
+  setTimeout(function () { return; }, 10000);
+
+  const messageId = Math.random().toString(36).substring(2, 15);
+  const amqp = require('amqp-connection-manager');
+  const rxjs = require('rxjs');
+  const Observable = rxjs.Observable;
+  var QUEUE_NAME = 'nlp';
+  // Create a connetion manager
+  var connection = amqp.connect(['amqp://localhost']);
+  connection.on('connect', function() {
+    console.log('Connected to rabbit MQ service');
+  });
+  connection.on('disconnect', function(err) {
+    console.log('Disconnected. Check if rabbitMQ service is running.', err.stack);
+  });
+
+  const observerChannelResults = Observable.create((observer) => {
+    var channelResultsWrapper = connection.createChannel({
+      setup: function(channel) {
+        // `channel` here is a regular amqplib `ConfirmChannel`.
+        channel.assertQueue('results', {durable: false});
+        channel.prefetch(1);
+        channel.consume('results', function(data) {
+          var message = JSON.parse(data.content.toString());
+          // console.log(message);
+          if (message.messageId === messageId) {
+            channelResultsWrapper.ack(data);
+            observer.next(message);
+            observer.complete();
           }
         });
-      });
+      }
+    });
+    channelResultsWrapper.waitForConnect().then(function () {
+      console.log('Listening for messages');
+    });
+  });
+
+  // send message to queue
+  var channelWrapper = connection.createChannel({
+    setup: function(channel) {
+      // `channel` here is a regular amqplib `ConfirmChannel`.
+      return Promise.all([
+        channel.assertQueue(QUEUE_NAME, {durable: false}),
+      ]);
+    }
+  });
+  channelWrapper.sendToQueue('nlp', new Buffer(JSON.stringify({messageId: messageId, text: text})), (err, done) => {
+    if(err) {
+      return console.log('Message was rejected:', err, done);
+    }
+  });
+  channelWrapper.waitForConnect().then(function () {
+    console.log('Listening for messages');
+  });
+  return new Promise(function(resolve) {
+    observerChannelResults.subscribe(o => {
+      resolve(o);
     });
   });
 };

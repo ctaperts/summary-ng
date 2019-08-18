@@ -14,8 +14,12 @@ channel.queue_declare(queue='nlp')
 channel.queue_declare(queue='results')
 
 def callback(ch, method, properties, body):
-    body = body.decode("utf-8")
-    results = nlp.summarize(body)
+    try:
+        body = json.loads(body.decode("utf-8"))
+    except Exception as e:
+        print("Could not properly load message: %s" % e)
+    results = nlp.summarize(body["text"])
+    results["messageId"] = body["messageId"]
     channel.basic_publish(exchange='',
                           routing_key='results',
                           body=json.dumps(results, ensure_ascii=False))
