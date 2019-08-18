@@ -56,11 +56,6 @@ exports.processText = (req, res) => {
     });
 };
 
-// const sureThing = promise =>
-//     promise
-//     .then(data => ({ok: true, data}))
-//     .catch(error => Promise.resolve({ok: false, error}));
-
 const nlp = async (text) => {
   setTimeout(function () { return; }, 10000);
 
@@ -69,7 +64,7 @@ const nlp = async (text) => {
   const rxjs = require('rxjs');
   const Observable = rxjs.Observable;
   var QUEUE_NAME = 'nlp';
-  // Create a connetion manager
+  // Create a connection manager
   var connection = amqp.connect(['amqp://localhost']);
   connection.on('connect', function() {
     console.log('Connected to rabbit MQ service');
@@ -86,7 +81,6 @@ const nlp = async (text) => {
         channel.prefetch(1);
         channel.consume('results', function(data) {
           var message = JSON.parse(data.content.toString());
-          // console.log(message);
           if (message.messageId === messageId) {
             channelResultsWrapper.ack(data);
             observer.next(message);
@@ -117,6 +111,7 @@ const nlp = async (text) => {
   channelWrapper.waitForConnect().then(function () {
     console.log('Listening for messages');
   });
+  // subscribe to message and return results when available
   return new Promise(function(resolve) {
     observerChannelResults.subscribe(o => {
       resolve(o);
