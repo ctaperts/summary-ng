@@ -1,7 +1,7 @@
 const pdfUtility = require('node-ts-ocr');
 
 const Post = require('../models/post');
-const connection = require('../mq');
+const mq = require('../mq');
 
 async function getOnePostDocPath(postId) {
   let retValue;
@@ -59,56 +59,23 @@ exports.processText = (req, res) => {
 const nlp = async (text) => {
   setTimeout(function () { return; }, 10000);
 
-  const rxjs = require('rxjs');
-  const Observable = rxjs.Observable;
+  // setup queue names
+  const QUEUE_NAME = 'nlp';
+  const QUEUE_RESULTS_NAME = 'results';
 
-  var QUEUE_NAME = 'nlp';
-
-  const observerChannelResults = Observable.create((observer) => {
-    var channelResultsWrapper = connection.createChannel({
-      setup: function(channel) {
-        // `channel` here is a regular amqplib `ConfirmChannel`.
-        channel.assertQueue('results', {durable: false});
-        // channel.prefetch(1);
-        channel.consume('results', function(data) {
-          var message = JSON.parse(data.content.toString());
-          if (message.messageId === messageId) {
-            channelResultsWrapper.ack(data);
-            channel.close();
-            observer.next(message);
-            observer.complete();
-          } else {
-            console.log('messageId:', message.messageId, 'and', messageId, 'not correct');
-          }
-        });
-      }
-    });
-    channelResultsWrapper.waitForConnect().then(function () {
-      console.log('Listening for messages');
-    });
-  });
-
-  // send message to queue
-  var channelWrapper = connection.createChannel({
-    setup: function(channel) {
-      // `channel` here is a regular amqplib `ConfirmChannel`.
-      return Promise.all([
-        channel.assertQueue(QUEUE_NAME, {durable: false}),
-      ]);
-    }
-  });
+  // create randon message ID
   let messageId = Math.random().toString(36).substring(2, 15);
-  channelWrapper.sendToQueue('nlp', new Buffer(JSON.stringify({messageId: messageId, text: text})), (err, done) => {
+
+  // send message
+  mq.channelWrapper(QUEUE_NAME).sendToQueue('nlp', new Buffer(JSON.stringify({messageId: messageId, text: text})), (err, done) => {
     if(err) {
       return console.log('Message was rejected:', err, done);
     }
   });
-  channelWrapper.waitForConnect().then(function () {
-    console.log('Listening for messages');
-  });
+
   // subscribe to message and return results when available
   const results = new Promise(function(resolve) {
-    const subscribe = observerChannelResults.subscribe(o => {
+    const subscribe = mq.observerChannelResults(QUEUE_RESULTS_NAME, messageId).subscribe(o => {
       subscribe.unsubscribe();
       resolve(o);
     });
