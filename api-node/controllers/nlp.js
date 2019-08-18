@@ -63,7 +63,7 @@ const nlp = async (text) => {
   const QUEUE_NAME = 'nlp';
   const QUEUE_RESULTS_NAME = 'results';
 
-  // create randon message ID
+  // create random message ID
   let messageId = Math.random().toString(36).substring(2, 15);
 
   // send message
