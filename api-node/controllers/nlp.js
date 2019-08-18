@@ -98,7 +98,6 @@ const nlp = async (text) => {
     }
   });
   let messageId = Math.random().toString(36).substring(2, 15);
-  messageId = 'test';
   channelWrapper.sendToQueue('nlp', new Buffer(JSON.stringify({messageId: messageId, text: text})), (err, done) => {
     if(err) {
       return console.log('Message was rejected:', err, done);
