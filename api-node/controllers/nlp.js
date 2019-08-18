@@ -80,5 +80,5 @@ const nlp = async (text) => {
       resolve(o);
     });
   });
-  return await results;
+  return results;
 };
