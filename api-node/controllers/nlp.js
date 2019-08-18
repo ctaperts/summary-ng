@@ -57,8 +57,6 @@ exports.processText = (req, res) => {
 };
 
 const nlp = async (text) => {
-  setTimeout(function () { return; }, 10000);
-
   // setup queue names
   const QUEUE_NAME = 'nlp';
   const QUEUE_RESULTS_NAME = 'results';
