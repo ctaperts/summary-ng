@@ -74,6 +74,7 @@ const nlp = async (text) => {
           var message = JSON.parse(data.content.toString());
           if (message.messageId === messageId) {
             channelResultsWrapper.ack(data);
+            channel.close();
             observer.next(message);
             observer.complete();
           } else {
@@ -98,22 +99,20 @@ const nlp = async (text) => {
   });
   let messageId = Math.random().toString(36).substring(2, 15);
   messageId = 'test';
-  console.log('345');
   channelWrapper.sendToQueue('nlp', new Buffer(JSON.stringify({messageId: messageId, text: text})), (err, done) => {
     if(err) {
       return console.log('Message was rejected:', err, done);
     }
   });
-  console.log('345');
   channelWrapper.waitForConnect().then(function () {
     console.log('Listening for messages');
   });
   // subscribe to message and return results when available
-  //  observerChannelResults.unsubscribe();
-  return new Promise(function(resolve) {
-    observerChannelResults.subscribe(o => {
-      console.log('345');
+  const results = new Promise(function(resolve) {
+    const subscribe = observerChannelResults.subscribe(o => {
+      subscribe.unsubscribe();
       resolve(o);
     });
   });
+  return await results;
 };
