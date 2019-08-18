@@ -1,7 +1,7 @@
-// const amqp = require('amqp-connection-manager');
 const pdfUtility = require('node-ts-ocr');
 
 const Post = require('../models/post');
+const connection = require('../mq');
 
 async function getOnePostDocPath(postId) {
   let retValue;
@@ -59,32 +59,25 @@ exports.processText = (req, res) => {
 const nlp = async (text) => {
   setTimeout(function () { return; }, 10000);
 
-  const messageId = Math.random().toString(36).substring(2, 15);
-  const amqp = require('amqp-connection-manager');
   const rxjs = require('rxjs');
   const Observable = rxjs.Observable;
+
   var QUEUE_NAME = 'nlp';
-  // Create a connection manager
-  var connection = amqp.connect(['amqp://localhost']);
-  connection.on('connect', function() {
-    console.log('Connected to rabbit MQ service');
-  });
-  connection.on('disconnect', function(err) {
-    console.log('Disconnected. Check if rabbitMQ service is running.', err.stack);
-  });
 
   const observerChannelResults = Observable.create((observer) => {
     var channelResultsWrapper = connection.createChannel({
       setup: function(channel) {
         // `channel` here is a regular amqplib `ConfirmChannel`.
         channel.assertQueue('results', {durable: false});
-        channel.prefetch(1);
+        // channel.prefetch(1);
         channel.consume('results', function(data) {
           var message = JSON.parse(data.content.toString());
           if (message.messageId === messageId) {
             channelResultsWrapper.ack(data);
             observer.next(message);
             observer.complete();
+          } else {
+            console.log('messageId:', message.messageId, 'and', messageId, 'not correct');
           }
         });
       }
@@ -103,17 +96,23 @@ const nlp = async (text) => {
       ]);
     }
   });
+  let messageId = Math.random().toString(36).substring(2, 15);
+  messageId = 'test';
+  console.log('345');
   channelWrapper.sendToQueue('nlp', new Buffer(JSON.stringify({messageId: messageId, text: text})), (err, done) => {
     if(err) {
       return console.log('Message was rejected:', err, done);
     }
   });
+  console.log('345');
   channelWrapper.waitForConnect().then(function () {
     console.log('Listening for messages');
   });
   // subscribe to message and return results when available
+  //  observerChannelResults.unsubscribe();
   return new Promise(function(resolve) {
     observerChannelResults.subscribe(o => {
+      console.log('345');
       resolve(o);
     });
   });
