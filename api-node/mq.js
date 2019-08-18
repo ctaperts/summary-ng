@@ -28,6 +28,7 @@ exports.observerChannelResults = (queueResultsName, messageId) => Observable.cre
           observer.next(message);
           observer.complete();
         } else {
+          // TODO clean up queue when more then x messages or after x time
           console.log('messageId:', message.messageId, 'and', messageId, 'not correct');
         }
       });
