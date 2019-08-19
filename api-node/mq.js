@@ -24,7 +24,7 @@ exports.observerChannelResults = (queueResultsName, messageId) => Observable.cre
           observer.next(false);
           observer.complete();
         }
-      }, 1);
+      }, 10000);
       // `channel` here is a regular amqplib `ConfirmChannel`.
       channel.assertQueue(queueResultsName, {durable: false});
       // channel.prefetch(1);
