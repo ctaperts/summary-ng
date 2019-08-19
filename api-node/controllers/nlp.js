@@ -78,5 +78,8 @@ const nlp = async (text) => {
       resolve(o);
     });
   });
+  if (! results) {
+    throw 'Request timed out or had an issue processing, please try again';
+  }
   return results;
 };

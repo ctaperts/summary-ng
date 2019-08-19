@@ -19,11 +19,12 @@ exports.observerChannelResults = (queueResultsName, messageId) => Observable.cre
     setup: function(channel) {
       // timeout requests
       setTimeout(function () {
-        channel.close();
-        observer.next('Request timed out');
-        observer.complete();
-        return;
-      }, 10000);
+        if (! observer.closed) {
+          channel.close();
+          observer.next(false);
+          observer.complete();
+        }
+      }, 1);
       // `channel` here is a regular amqplib `ConfirmChannel`.
       channel.assertQueue(queueResultsName, {durable: false});
       // channel.prefetch(1);
