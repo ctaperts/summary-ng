@@ -62,7 +62,7 @@ const nlp = async (text) => {
   const QUEUE_RESULTS_NAME = 'results';
 
   // create random message ID
-  let messageId = Math.random().toString(36).substring(2, 15);
+  const messageId = Math.random().toString(36).substring(2, 15);
 
   // send message
   mq.channelWrapper(QUEUE_NAME).sendToQueue('nlp', new Buffer(JSON.stringify({messageId: messageId, text: text})), (err, done) => {
