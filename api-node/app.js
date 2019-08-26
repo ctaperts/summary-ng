@@ -12,7 +12,7 @@ const app = express();
 
 mongoose.Promise = Promise;
 
-mongoose.connect('mongodb+srv://colby:' + process.env.MONO_ATLAS_PW + '@cluster0-gylxp.mongodb.net/mean-course?retryWrites=true&w=majority')
+mongoose.connect('mongodb+srv://' + process.env.MONO_ATLAS_USER + ':' + process.env.MONO_ATLAS_PW + '@cluster0-gylxp.mongodb.net/mean-course?retryWrites=true&w=majority')
   .then(() => {
     console.log('Connected to the database');
   })
