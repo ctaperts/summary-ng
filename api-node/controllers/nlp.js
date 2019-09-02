@@ -1,5 +1,6 @@
 const pdfUtility = require('node-ts-ocr');
 
+// const Nlp = require('../models/nlp');
 const Post = require('../models/post');
 const mq = require('../mq');
 
@@ -58,28 +59,31 @@ exports.processText = (req, res) => {
 
 const nlp = async (text) => {
   // setup queue names
-  const QUEUE_NAME = 'nlp';
-  const QUEUE_RESULTS_NAME = 'results';
+  const EXCHANGE_NAME = 'nlp';
 
   // create random message ID
-  const messageId = Math.random().toString(36).substring(2, 15);
+  const correlationId = Math.random().toString(36).substring(2, 15);
 
   // send message
-  mq.channelWrapper(QUEUE_NAME).sendToQueue('nlp', new Buffer(JSON.stringify({messageId: messageId, text: text})), (err, done) => {
-    if(err) {
-      throw 'Message was rejected:', err, done;
-    }
-  });
-
-  // subscribe to message and return results when available
-  const results = new Promise(function(resolve) {
-    const subscribe = mq.observerChannelResults(QUEUE_RESULTS_NAME, messageId).subscribe(o => {
-      subscribe.unsubscribe();
-      resolve(o);
+  mq.channelWrapper(EXCHANGE_NAME).publish(
+    EXCHANGE_NAME,
+    'nlp.summary',
+    new Buffer(JSON.stringify({text: text})),
+    {correlationId: correlationId, replyTo: 'nlp.results.summary'},
+    (err, done) => {
+      if(err) {
+        console.log('Message was rejected:', err, 'sent:', done);
+      }
+    });
+  return new Promise(resolve=>{
+    const watchChannel = mq.observerChannelResults(correlationId).subscribe(data => {
+      if (data) {
+        const message = JSON.parse(data.content.toString());
+        watchChannel.unsubscribe();
+        if (message) {
+          resolve(message);
+        }
+      }
     });
   });
-  if (! results) {
-    throw 'Request timed out or had an issue processing, please try again';
-  }
-  return results;
 };

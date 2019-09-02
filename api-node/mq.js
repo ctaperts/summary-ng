@@ -14,30 +14,17 @@ connection.on('disconnect', function(err) {
 
 
 // Observer results channel and wait for message with random ID
-exports.observerChannelResults = (queueResultsName, messageId) => Observable.create((observer) => {
-  const channelResultsWrapper = connection.createChannel({
+exports.observerChannelResults = (correlationId) => new Observable.create((observer) => {
+  const q = 'results_queue';
+  connection.createChannel({
     setup: function(channel) {
-      // timeout requests
-      setTimeout(function () {
-        if (! observer.closed) {
-          channel.close();
-          observer.next(false);
-          observer.complete();
-        }
-      }, 10000);
-      // `channel` here is a regular amqplib `ConfirmChannel`.
-      channel.assertQueue(queueResultsName, {durable: false});
-      // channel.prefetch(1);
-      channel.consume(queueResultsName, function(data) {
-        const message = JSON.parse(data.content.toString());
-        if (message.messageId === messageId) {
-          channelResultsWrapper.ack(data);
-          channel.close();
-          observer.next(message);
-          observer.complete();
-        } else {
-          // TODO clean up queue when more then x messages or after x time
-          console.log('messageId:', message.messageId, 'and', messageId, 'not correct');
+      channel.consume(q, function(data) {
+        if (data) {
+          if (data.properties.correlationId === correlationId) {
+            channel.ack(data);
+            observer.next(data);
+            channel.close();
+          }
         }
       });
     }
@@ -45,11 +32,9 @@ exports.observerChannelResults = (queueResultsName, messageId) => Observable.cre
 });
 
 // send message to queue
-exports.channelWrapper = (queueName) => connection.createChannel({
+exports.channelWrapper = (exchangeName) => connection.createChannel({
   setup: function(channel) {
     // `channel` here is a regular amqplib `ConfirmChannel`.
-    return Promise.all([
-      channel.assertQueue(queueName, {durable: false}),
-    ]);
+    return channel.assertExchange(exchangeName, 'topic', {durable: false});
   }
 });
