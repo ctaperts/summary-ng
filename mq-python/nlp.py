@@ -88,7 +88,11 @@ def summarize(text):
         sumValues += sentenceVal[values]
 
     # Average value of a sentence from original text
-    average = int(sumValues/ len(sentenceVal))
+    try:
+        average = int(sumValues/ len(sentenceVal))
+    except ZeroDivisionError:
+        average = 0
+
 
     # print("\nSUMMARY ----------------------------------------------\n")
     for sentence in sentences:
@@ -100,13 +104,19 @@ def summarize(text):
             result["text"] += " " + sentence
 
     # Difference = 1 - length of summary / length of original text
-    difference = "{:.1%}".format(1 - len(result["text"])/len(text))
+    try:
+        difference = "{:.1%}".format(1 - len(result["text"])/len(text))
+    except ZeroDivisionError:
+        difference = 0
 
     # Open the mini db
     # db = json.load(open('./api-python/db.json'))
 
     # Find the contrast between the average and current reduction
-    fDiff = 1 - len(result["text"])/len(text)
+    try:
+        fDiff = 1 - len(result["text"])/len(text)
+    except ZeroDivisionError:
+        fDiff = 0
     # print("{} current and {} avg".format(fDiff, db["avgReduction"]))
     if fDiff > db["avgReduction"]:
         result["stats"]["avg_contrast"] = "above"
